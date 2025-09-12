@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LeanCloud 登录记录测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .login-history {
+            margin-top: 20px;
+        }
+        .record {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>LeanCloud 用户登录记录测试</h1>
+    
+    <!-- 初始化配置 -->
+    <div class="container">
+        <h2>1. 应用配置</h2>
+        <div class="form-group">
+            <label for="appId">App ID:</label>
+            <input type="text" id="appId" placeholder="输入你的LeanCloud App ID">
+        </div>
+        <div class="form-group">
+            <label for="appKey">App Key:</label>
+            <input type="text" id="appKey" placeholder="输入你的LeanCloud App Key">
+        </div>
+        <div class="form-group">
+            <label for="serverUrl">Server URL (可选):</label>
+            <input type="text" id="serverUrl" placeholder="如果是国际版，请输入服务器地址">
+        </div>
+        <button onclick="initApp()">初始化应用</button>
+        <div id="initResult" class="result" style="display: none;"></div>
+    </div>
+
+    <!-- 用户注册 -->
+    <div class="container">
+        <h2>2. 用户注册</h2>
+        <div class="form-group">
+            <label for="regUsername">用户名:</label>
+            <input type="text" id="regUsername" placeholder="输入用户名">
+        </div>
+        <div class="form-group">
+            <label for="regPassword">密码:</label>
+            <input type="password" id="regPassword" placeholder="输入密码">
+        </div>
+        <div class="form-group">
+            <label for="regEmail">邮箱 (可选):</label>
+            <input type="email" id="regEmail" placeholder="输入邮箱">
+        </div>
+        <button onclick="registerUser()">注册用户</button>
+        <div id="regResult" class="result" style="display: none;"></div>
+    </div>
+
+    <!-- 用户登录 -->
+    <div class="container">
+        <h2>3. 用户登录</h2>
+        <div class="form-group">
+            <label for="loginUsername">用户名:</label>
+            <input type="text" id="loginUsername" placeholder="输入用户名">
+        </div>
+        <div class="form-group">
+            <label for="loginPassword">密码:</label>
+            <input type="password" id="loginPassword" placeholder="输入密码">
+        </div>
+        <button onclick="loginUser()">登录</button>
+        <button onclick="logoutUser()">登出</button>
+        <div id="loginResult" class="result" style="display: none;"></div>
+    </div>
+
+    <!-- 查看登录历史 -->
+    <div class="container">
+        <h2>4. 查看登录历史</h2>
+        <button onclick="getLoginHistory()">获取我的登录历史</button>
+        <button onclick="getAllLoginStats()">获取所有用户登录统计 (管理员)</button>
+        <div id="historyResult" class="result" style="display: none;"></div>
+        <div id="loginHistory" class="login-history"></div>
+    </div>
+
+    <!-- 引入LeanCloud SDK -->
+    <script src="https://unpkg.com/leancloud-storage@4.15.2/dist/av.js"></script>
+    
+    <script>
+        let currentUser = null;
+
+        // 初始化应用
+        function initApp() {
+            const appId = document.getElementById('appId').value;
+            const appKey = document.getElementById('appKey').value;
+            const serverUrl = document.getElementById('serverUrl').value;
+
+            if (!appId || !appKey) {
+                showResult('initResult', '请填写App ID和App Key', 'error');
+                return;
+            }
+
+            try {
+                const config = { appId, appKey };
+                if (serverUrl) {
+                    config.serverURL = serverUrl;
+                }
+                
+                AV.init(config);
+                showResult('initResult', '应用初始化成功！', 'success');
+            } catch (error) {
+                showResult('initResult', '初始化失败: ' + error.message, 'error');
+            }
+        }
+
+        // 注册用户
+        async function registerUser() {
+            const username = document.getElementById('regUsername').value;
+            const password = document.getElementById('regPassword').value;
+            const email = document.getElementById('regEmail').value;
+
+            if (!username || !password) {
+                showResult('regResult', '请填写用户名和密码', 'error');
+                return;
+            }
+
+            try {
+                const user = new AV.User();
+                user.setUsername(username);
+                user.setPassword(password);
+                if (email) {
+                    user.setEmail(email);
+                }
+
+                await user.signUp();
+                showResult('regResult', `用户注册成功！用户ID: ${user.id}`, 'success');
+            } catch (error) {
+                showResult('regResult', '注册失败: ' + error.message, 'error');
+            }
+        }
+
+        // 用户登录
+        async function loginUser() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!username || !password) {
+                showResult('loginResult', '请填写用户名和密码', 'error');
+                return;
+            }
+
+            try {
+                const user = await AV.User.logIn(username, password);
+                currentUser = user;
+                showResult('loginResult', `登录成功！\n用户ID: ${user.id}\n用户名: ${user.get('username')}\n登录时间: ${new Date().toLocaleString()}`, 'success');
+            } catch (error) {
+                showResult('loginResult', '登录失败: ' + error.message, 'error');
+            }
+        }
+
+        // 用户登出
+        async function logoutUser() {
+            try {
+                await AV.User.logOut();
+                currentUser = null;
+                showResult('loginResult', '已成功登出', 'success');
+            } catch (error) {
+                showResult('loginResult', '登出失败: ' + error.message, 'error');
+            }
+        }
+
+        // 获取登录历史
+        async function getLoginHistory() {
+            if (!currentUser) {
+                showResult('historyResult', '请先登录', 'error');
+                return;
+            }
+
+            try {
+                const result = await AV.Cloud.run('getUserLoginHistory', { limit: 20 });
+                if (result.success) {
+                    showResult('historyResult', `获取登录历史成功，共${result.data.length}条记录`, 'success');
+                    displayLoginHistory(result.data);
+                } else {
+                    showResult('historyResult', '获取登录历史失败', 'error');
+                }
+            } catch (error) {
+                showResult('historyResult', '获取登录历史失败: ' + error.message, 'error');
+            }
+        }
+
+        // 获取所有用户登录统计（管理员功能）
+        async function getAllLoginStats() {
+            if (!currentUser) {
+                showResult('historyResult', '请先登录', 'error');
+                return;
+            }
+
+            try {
+                const result = await AV.Cloud.run('getAllUsersLoginStats');
+                if (result.success) {
+                    showResult('historyResult', `获取登录统计成功，共${result.data.length}条记录`, 'success');
+                    displayAllLoginStats(result.data);
+                } else {
+                    showResult('historyResult', '获取登录统计失败', 'error');
+                }
+            } catch (error) {
+                showResult('historyResult', '获取登录统计失败: ' + error.message, 'error');
+            }
+        }
+
+        // 显示结果
+        function showResult(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `result ${type}`;
+            element.style.display = 'block';
+        }
+
+        // 显示登录历史
+        function displayLoginHistory(records) {
+            const container = document.getElementById('loginHistory');
+            container.innerHTML = '<h3>我的登录历史:</h3>';
+            
+            records.forEach(record => {
+                const div = document.createElement('div');
+                div.className = 'record';
+                div.innerHTML = `
+                    <strong>登录时间:</strong> ${new Date(record.loginTime).toLocaleString()}<br>
+                    <strong>IP地址:</strong> ${record.ipAddress}<br>
+                    <strong>平台:</strong> ${record.platform}<br>
+                    <strong>设备信息:</strong> ${record.userAgent}
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // 显示所有用户登录统计
+        function displayAllLoginStats(records) {
+            const container = document.getElementById('loginHistory');
+            container.innerHTML = '<h3>所有用户登录统计:</h3>';
+            
+            records.forEach(record => {
+                const div = document.createElement('div');
+                div.className = 'record';
+                div.innerHTML = `
+                    <strong>用户名:</strong> ${record.username}<br>
+                    <strong>邮箱:</strong> ${record.email || '未设置'}<br>
+                    <strong>登录时间:</strong> ${new Date(record.loginTime).toLocaleString()}<br>
+                    <strong>IP地址:</strong> ${record.ipAddress}<br>
+                    <strong>平台:</strong> ${record.platform}
+                `;
+                container.appendChild(div);
+            });
+        }
+    </script>
+</body>
+</html>
