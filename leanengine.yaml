@@ -1,0 +1,23 @@
+# LeanCloud 云引擎部署配置文件
+
+# 项目根目录
+root: .
+
+# 忽略的文件和目录
+ignore:
+  - .git
+  - node_modules
+  - .env
+  - README.md
+  - .gitignore
+
+# 运行时配置
+runtime: nodejs
+
+# 启动命令
+run: npm start
+
+# 环境变量（在LeanCloud控制台设置）
+# LEANCLOUD_APP_ID
+# LEANCLOUD_APP_KEY  
+# LEANCLOUD_APP_MASTER_KEY
