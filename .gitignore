@@ -1,0 +1,77 @@
+# 依赖包
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 环境变量文件（包含敏感信息）
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 日志文件
+logs
+*.log
+
+# 运行时数据
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# 缓存文件
+.npm
+.eslintcache
+
+# 可选的npm缓存目录
+.npm
+
+# 可选的REPL历史
+.node_repl_history
+
+# 输出的覆盖率目录
+coverage/
+
+# nyc测试覆盖率
+.nyc_output
+
+# Grunt中间和输出文件
+.grunt
+
+# Bower依赖目录
+bower_components
+
+# node-waf配置
+.lock-wscript
+
+# 编译后的二进制插件
+build/Release
+
+# 依赖目录
+jspm_packages/
+
+# TypeScript v1声明文件
+typings/
+
+# 可选的npm缓存目录
+.npm
+
+# 可选的eslint缓存
+.eslintcache
+
+# Microbundle缓存
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.DS_Store
+.vscode/
+.idea/
+
+# 临时文件
+*.tmp
+*.temp
