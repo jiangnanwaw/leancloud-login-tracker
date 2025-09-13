@@ -67,6 +67,17 @@ if (hasLeanCloud && AV) {
   }
 }
 
+// 可以将一类的路由单独保存在一个文件中
+if (hasLeanCloud) {
+  try {
+    app.use('/todos', require('./routes/todos'));
+    app.use('/login-records', require('./routes/login-records'));
+    console.log('✅ LeanCloud 路由加载成功');
+  } catch (error) {
+    console.log('⚠️ LeanCloud 路由加载失败，使用独立模式');
+  }
+}
+
 // 云函数端点（兼容模式）
 app.post('/1.1/functions/hello', (req, res) => {
   const result = `Hello from LeanEngine Demo! Time: ${new Date().toISOString()}`;
@@ -118,14 +129,6 @@ app.post('/1.1/functions/getTodoStats', async (req, res) => {
 });
 
 // Todo API端点
-if (hasLeanCloud) {
-  // 使用LeanCloud路由
-  try {
-    app.use('/todos', require('./routes/todos'));
-  } catch (error) {
-    console.log('⚠️ LeanCloud todos路由加载失败，使用独立模式');
-  }
-}
 
 // 独立模式的Todo API
 app.get('/todos', (req, res) => {

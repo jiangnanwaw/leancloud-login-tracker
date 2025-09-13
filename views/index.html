@@ -110,6 +110,22 @@
             </div>
             <button class="test-button" onclick="testCloudFunction('getTodoStats')">获取 Todo 统计</button>
 
+            <h4>登录记录云函数</h4>
+            <div class="api-endpoint">
+                <span class="method post">POST</span> /1.1/functions/recordUserLogin
+            </div>
+            <button class="test-button" onclick="testRecordLogin()">记录用户登录</button>
+            
+            <div class="api-endpoint">
+                <span class="method post">POST</span> /1.1/functions/getUserLoginHistory
+            </div>
+            <button class="test-button" onclick="testGetLoginHistory()">获取登录历史</button>
+            
+            <div class="api-endpoint">
+                <span class="method post">POST</span> /1.1/functions/getLoginStats
+            </div>
+            <button class="test-button" onclick="testCloudFunction('getLoginStats')">获取登录统计</button>
+
             <h4>REST API</h4>
             <div class="api-endpoint">
                 <span class="method get">GET</span> /todos
@@ -120,6 +136,22 @@
                 <span class="method post">POST</span> /todos
             </div>
             <button class="test-button" onclick="testCreateTodo()">创建 Todo</button>
+            
+            <h4>登录记录 API</h4>
+            <div class="api-endpoint">
+                <span class="method post">POST</span> /login-records/login
+            </div>
+            <button class="test-button" onclick="testLoginRecord()">模拟用户登录</button>
+            
+            <div class="api-endpoint">
+                <span class="method get">GET</span> /login-records/records
+            </div>
+            <button class="test-button" onclick="testAPI('GET', '/login-records/records')">获取登录记录</button>
+            
+            <div class="api-endpoint">
+                <span class="method get">GET</span> /login-records/stats
+            </div>
+            <button class="test-button" onclick="testAPI('GET', '/login-records/stats')">登录统计</button>
             
             <div class="api-endpoint">
                 <span class="method get">GET</span> /health
@@ -191,6 +223,32 @@
         function testCreateTodo() {
             const title = `测试 Todo ${new Date().toLocaleTimeString()}`;
             testAPI('POST', '/todos', { title: title, completed: false });
+        }
+
+        // 登录记录相关测试函数
+        function testRecordLogin() {
+            const username = `user_${Math.floor(Math.random() * 1000)}`;
+            testCloudFunction('recordUserLogin', {
+                username: username,
+                userAgent: navigator.userAgent,
+                deviceInfo: 'Web Browser Test'
+            });
+        }
+
+        function testGetLoginHistory() {
+            const username = 'user_123'; // 可以改为具体用户名
+            testCloudFunction('getUserLoginHistory', {
+                username: username,
+                limit: 10
+            });
+        }
+
+        function testLoginRecord() {
+            const username = `testuser_${Math.floor(Math.random() * 1000)}`;
+            testAPI('POST', '/login-records/login', {
+                username: username,
+                deviceInfo: 'Web Browser Test'
+            });
         }
     </script>
 </body>
