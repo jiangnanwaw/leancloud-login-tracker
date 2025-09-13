@@ -1,0 +1,15 @@
+{
+  "name": "leanengine-login-tracker",
+  "version": "1.0.0",
+  "description": "LeanCloud 用户登录记录 Hook",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "leanengine": "3.6.2"
+  },
+  "engines": {
+    "node": "16.x"
+  }
+}
