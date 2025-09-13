@@ -4,10 +4,12 @@
   "description": "LeanCloud云引擎示例项目",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "leancloud": "node server.js",
     "test-local": "node server-simple.js",
-    "standalone": "node server-standalone.js"
+    "standalone": "node server-standalone.js",
+    "universal": "node app.js"
   },
   "engines": {
     "node": ">=14.0.0"
