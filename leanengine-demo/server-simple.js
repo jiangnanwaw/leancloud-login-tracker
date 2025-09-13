@@ -1,17 +1,8 @@
 // 加载环境变量
 require('dotenv').config();
 
-const AV = require('leanengine');
 const express = require('express');
 const path = require('path');
-
-// 初始化 LeanEngine
-AV.init({
-  appId: process.env.LEANCLOUD_APP_ID || 'your_app_id_here',
-  appKey: process.env.LEANCLOUD_APP_KEY || 'your_app_key_here',
-  masterKey: process.env.LEANCLOUD_APP_MASTER_KEY || 'your_master_key_here',
-  serverURL: 'https://api.leancloud.cn' // 国内版服务器地址
-});
 
 const app = express();
 
@@ -20,30 +11,29 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'html');
 app.engine('html', require('ejs').renderFile);
 
-// 加载云引擎中间件
-app.use(AV.express());
-
-// 启用 HTTPS 重定向，确保用户访问的是 HTTPS 协议
-app.enable('trust proxy');
-app.use(AV.Cloud.HttpsRedirect());
-
-// 加载云函数定义，你可以将云函数定义在 cloud.js 中
-require('./cloud');
-
-// 可以将一类的路由单独保存在一个文件中
-app.use('/todos', require('./routes/todos'));
-
 // 根路由
 app.get('/', function(req, res) {
   res.render('index', { 
     currentTime: new Date().toLocaleString('zh-CN'),
-    appName: 'LeanEngine Demo'
+    appName: 'LeanEngine Demo (本地测试版)'
   });
 });
 
 // 健康检查路由
 app.get('/health', function(req, res) {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    message: '服务运行正常'
+  });
+});
+
+// 简单的API示例
+app.get('/api/hello', function(req, res) {
+  res.json({
+    message: 'Hello from LeanEngine Demo!',
+    time: new Date().toISOString()
+  });
 });
 
 // 404 处理
@@ -62,8 +52,8 @@ app.use(function(err, req, res, next) {
 const PORT = parseInt(process.env.LEANCLOUD_APP_PORT || process.env.PORT || 3000);
 
 app.listen(PORT, function () {
-  console.log('LeanEngine app is running on port:', PORT);
+  console.log('LeanEngine Demo is running on port:', PORT);
+  console.log('访问 http://localhost:' + PORT + ' 查看应用');
 });
 
-// 最后，必须有这行代码来使 express 响应 LeanEngine 的请求
 module.exports = app;
